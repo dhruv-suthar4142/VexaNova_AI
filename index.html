@@ -31,9 +31,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
-        /* Custom Styles & Overrides */
         body {
-            /* Prevent pull-to-refresh on mobile */
             overscroll-behavior-y: none;
         }
         
@@ -46,6 +44,7 @@
             overflow-x: auto;
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
+            position: relative;
         }
         .prose code {
             background-color: rgba(128, 128, 128, 0.2);
@@ -60,18 +59,15 @@
         .prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 0.75rem; }
         .prose strong { font-weight: 600; }
         
-        /* Textarea auto-resize */
         textarea {
             resize: none;
             overflow-y: auto;
-            max-height: 150px;
+            max-height: 120px;
         }
 
-        /* Hide scrollbar for cleaner look */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Typing animation */
         .typing-dot {
             animation: typing 1.4s infinite ease-in-out both;
         }
@@ -80,6 +76,13 @@
         @keyframes typing {
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1); }
+        }
+
+        /* Glassmorphism effects for media controls */
+        .media-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
@@ -113,13 +116,13 @@
                 </button>
             </div>
             
-            <div class="px-4 pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent</div>
+            <div class="px-4 pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent Workspace</div>
             
             <div id="chat-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar">
                 <!-- Chat items injected here -->
             </div>
 
-            <div class="p-4 mt-auto border-t border-gray-200 dark:border-gray-800">
+            <div class="p-4 mt-auto border-t border-gray-200 dark:border-gray-800 space-y-2">
                 <button id="settings-open-btn" class="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
                     <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Settings
@@ -130,51 +133,85 @@
         <!-- Main Content -->
         <main class="flex-1 flex flex-col min-w-0 h-full relative bg-white dark:bg-gemini-darkbg">
             <!-- Header -->
-            <header class="flex items-center justify-between p-3 md:p-4 shrink-0">
+            <header class="flex items-center justify-between p-3 md:p-4 shrink-0 border-b border-gray-100 dark:border-gray-800">
                 <div class="flex items-center gap-2">
                     <button id="hamburger-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                     <h1 class="text-xl font-medium tracking-tight text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                        VexaNova <span class="bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text font-bold">AI</span>
+                        VexaNova <span class="bg-gradient-to-r from-blue-500 to-indigo-500 text-transparent bg-clip-text font-bold">AI</span>
                     </h1>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-4">
+                    <span id="active-model-badge" class="hidden sm:inline-block text-xs bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-md font-mono text-gray-500 max-w-[180px] truncate"></span>
                     <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-300">
-                        <!-- Sun Icon (Hidden in Dark) -->
                         <svg id="icon-sun" class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                        <!-- Moon Icon (Hidden in Light) -->
                         <svg id="icon-moon" class="w-6 h-6 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     </button>
                 </div>
             </header>
 
             <!-- Chat Area -->
-            <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:px-12 lg:px-32 scroll-smooth pb-32">
+            <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:px-12 lg:px-32 scroll-smooth pb-44">
                 <!-- Welcome Screen -->
-                <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center opacity-100 transition-opacity">
-                    <div class="w-16 h-16 mb-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center opacity-100 transition-opacity my-auto py-12">
+                    <div class="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     </div>
-                    <h2 class="text-3xl font-semibold mb-2">How can I help you today?</h2>
-                    <p class="text-gray-500 dark:text-gray-400 max-w-md">VexaNova AI is ready to assist you. Powered by OpenRouter.</p>
+                    <h2 class="text-3xl font-semibold mb-2">Omni-Creative Engine</h2>
+                    <p class="text-gray-500 dark:text-gray-400 max-w-md mb-8">Generate text, structured markdown, code, realistic images, cinematic videos, or synthetic audio pipelines instantly.</p>
+                    
+                    <!-- Quick Actions Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-2xl px-4">
+                        <button onclick="insertMediaPrompt('/image ')" class="flex flex-col items-center p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 bg-gray-50/50 dark:bg-[#1a1b1c] text-left transition-all">
+                            <svg class="w-6 h-6 text-blue-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span class="text-xs font-semibold">Create Image</span>
+                            <span class="text-[10px] text-gray-400 mt-1 text-center">/image [prompt]</span>
+                        </button>
+                        <button onclick="insertMediaPrompt('/video ')" class="flex flex-col items-center p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-indigo-500 dark:hover:border-indigo-500 bg-gray-50/50 dark:bg-[#1a1b1c] text-left transition-all">
+                            <svg class="w-6 h-6 text-indigo-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <span class="text-xs font-semibold">Generate Video</span>
+                            <span class="text-[10px] text-gray-400 mt-1 text-center">/video [prompt]</span>
+                        </button>
+                        <button onclick="insertMediaPrompt('/audio ')" class="flex flex-col items-center p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-purple-500 dark:hover:border-purple-500 bg-gray-50/50 dark:bg-[#1a1b1c] text-left transition-all">
+                            <svg class="w-6 h-6 text-purple-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                            <span class="text-xs font-semibold">Synthesize Audio</span>
+                            <span class="text-[10px] text-gray-400 mt-1 text-center">/audio [prompt]</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Messages appended here -->
                 <div id="messages-wrapper" class="flex flex-col gap-6 hidden"></div>
             </div>
 
-            <!-- Input Area -->
+            <!-- Input Form Container -->
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-white via-white to-transparent dark:from-gemini-darkbg dark:via-gemini-darkbg pt-6 pb-4 px-4 md:px-12 lg:px-32">
                 <div class="max-w-4xl mx-auto relative">
-                    <form id="chat-form" class="relative flex items-end shadow-md border border-gray-200 dark:border-gray-700 rounded-3xl bg-white dark:bg-[#1e1f20] overflow-hidden focus-within:ring-1 focus-within:ring-blue-500 transition-shadow">
-                        <textarea id="chat-input" rows="1" placeholder="Enter a prompt here..." class="w-full max-h-48 py-3.5 pl-5 pr-14 bg-transparent outline-none resize-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 no-scrollbar"></textarea>
-                        <button type="submit" id="send-btn" class="absolute right-2 bottom-1.5 p-2 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                        </button>
+                    
+                    <!-- Quick toolbar tags -->
+                    <div class="flex gap-2 mb-2 px-2 overflow-x-auto no-scrollbar">
+                        <button onclick="insertMediaPrompt('/image ')" class="text-xs bg-gray-100 dark:bg-[#282a2c] hover:bg-blue-50 dark:hover:bg-blue-950/30 border dark:border-gray-700 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors font-medium">📷 Image</button>
+                        <button onclick="insertMediaPrompt('/video ')" class="text-xs bg-gray-100 dark:bg-[#282a2c] hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border dark:border-gray-700 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors font-medium">🎬 Video</button>
+                        <button onclick="insertMediaPrompt('/audio ')" class="text-xs bg-gray-100 dark:bg-[#282a2c] hover:bg-purple-50 dark:hover:bg-purple-950/30 border dark:border-gray-700 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors font-medium">🎵 Audio</button>
+                    </div>
+
+                    <form id="chat-form" class="relative flex items-end shadow-lg border border-gray-200 dark:border-gray-700 rounded-3xl bg-white dark:bg-[#1e1f20] overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
+                        <textarea id="chat-input" rows="1" placeholder="Type a message or use /image, /video, /audio..." class="w-full max-h-48 py-3.5 pl-5 pr-24 bg-transparent outline-none resize-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 no-scrollbar"></textarea>
+                        
+                        <div class="absolute right-2 bottom-1.5 flex items-center gap-1">
+                            <!-- Stop Button (Hidden when not generating) -->
+                            <button type="button" id="stop-btn" class="hidden p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 transition-colors shadow-sm" title="Stop generating">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"></rect></svg>
+                            </button>
+                            <!-- Send Button -->
+                            <button type="submit" id="send-btn" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-indigo-500 transition-colors disabled:opacity-40">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                            </button>
+                        </div>
                     </form>
-                    <div class="text-center mt-2 text-xs text-gray-400 dark:text-gray-500">
-                        VexaNova AI may produce inaccurate information about people, places, or facts.
+                    <div class="text-center mt-2 text-[11px] text-gray-400 dark:text-gray-500">
+                        VexaNova Multi-Modal Suite • Published by Vexa Labs Inc.
                     </div>
                 </div>
             </div>
@@ -185,64 +222,63 @@
     <div id="settings-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-[#1e1f20] w-full max-w-md rounded-2xl shadow-2xl flex flex-col transform transition-all border dark:border-gray-700">
             <div class="flex justify-between items-center p-5 border-b dark:border-gray-700">
-                <h2 class="text-xl font-semibold">Settings</h2>
+                <h2 class="text-xl font-semibold">Configuration Console</h2>
                 <button id="close-settings-btn" class="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded-full transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
             
             <div class="p-5 overflow-y-auto space-y-5 max-h-[70vh]">
-                <!-- API Key -->
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">OpenRouter API Key <span class="text-red-500">*</span></label>
-                    <input type="password" id="setting-api-key" placeholder="sk-or-v1-..." class="w-full p-2.5 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-sm">
+                    <input type="password" id="setting-api-key" placeholder="sk-or-v1-..." class="w-full p-2.5 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
                 </div>
                 
-                <!-- Model -->
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Model Name</label>
-                    <input type="text" id="setting-model" placeholder="deepseek/deepseek-r1:free" class="w-full p-2.5 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-sm">
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Target Core Model</label>
+                    <input type="text" id="setting-model" placeholder="openai/gpt-oss-120b:free" class="w-full p-2.5 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-mono">
                 </div>
                 
-                <!-- System Prompt -->
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">System Prompt (Global)</label>
-                    <textarea id="setting-system-prompt" rows="3" placeholder="You are a helpful assistant..." class="w-full p-2.5 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-sm resize-none"></textarea>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">System Architecture Prompt</label>
+                    <textarea id="setting-system-prompt" rows="3" class="w-full p-2.5 bg-gray-50 dark:bg-black/20 border border-gray-300 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-sm resize-none"></textarea>
                 </div>
             </div>
             
             <div class="p-5 border-t dark:border-gray-700 flex justify-end gap-3 bg-gray-50 dark:bg-[#1a1b1c] rounded-b-2xl">
                 <button id="cancel-settings-btn" class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">Cancel</button>
-                <button id="save-settings-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">Save Changes</button>
+                <button id="save-settings-btn" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors">Apply Config</button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APPLICATION SCRIPT -->
+    <!-- MAIN SCRIPT EXECUTION -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- STATE MANAGEMENT ---
+            // --- ARCHITECTURE STATE ---
             let state = {
                 chats: [],
                 currentChatId: null,
                 settings: {
                     apiKey: '',
-                    model: 'deepseek/deepseek-r1:free',
-                    systemPrompt: 'You are VexaNova AI, a highly advanced, helpful, and concise AI assistant built by Vexa Labs Inc.',
+                    model: 'openai/gpt-oss-120b:free',
+                    systemPrompt: 'You are VexaNova AI, a highly advanced multimodal engine built by Vexa Labs Inc. Fully support production of structural markdown, complex code, descriptive visual parameters, audio script configurations, and dynamic media parsing arrays.',
                     darkMode: false
                 },
                 isGenerating: false
             };
 
-            // --- DOM ELEMENTS ---
+            let currentAbortController = null;
+
+            // --- OBJECT DOM MAP ---
             const els = {
                 app: document.getElementById('app'),
                 loading: document.getElementById('loading'),
                 sidebar: document.getElementById('sidebar'),
                 sidebarOverlay: document.getElementById('sidebar-overlay'),
                 hamburgerBtn: document.getElementById('hamburger-btn'),
-                closeSidebarBtn: document.getElementById('closeSidebar-btn'),
+                closeSidebarBtn: document.getElementById('close-sidebar-btn'),
                 themeToggle: document.getElementById('theme-toggle'),
                 htmlTag: document.documentElement,
                 newChatBtn: document.getElementById('new-chat-btn'),
@@ -253,7 +289,9 @@
                 chatForm: document.getElementById('chat-form'),
                 chatInput: document.getElementById('chat-input'),
                 sendBtn: document.getElementById('send-btn'),
-                // Settings
+                stopBtn: document.getElementById('stop-btn'),
+                activeModelBadge: document.getElementById('active-model-badge'),
+                // Settings Elements
                 settingsModal: document.getElementById('settings-modal'),
                 settingsOpenBtn: document.getElementById('settings-open-btn'),
                 closeSettingsBtn: document.getElementById('close-settings-btn'),
@@ -264,12 +302,13 @@
                 settingSystemPrompt: document.getElementById('setting-system-prompt')
             };
 
-            // --- INITIALIZATION ---
+            // --- BOOTSTRAP INITIALIZATION ---
             function init() {
                 loadState();
                 applyTheme();
                 setupEventListeners();
                 renderChatList();
+                updateModelBadge();
                 
                 if (state.chats.length === 0) {
                     createNewChat();
@@ -280,41 +319,52 @@
                     renderCurrentChat();
                 }
 
-                // Remove loading screen
+                // Smooth removal of global loading frame
                 setTimeout(() => {
-                    els.loading.style.display = 'none';
-                    els.app.classList.remove('hidden');
-                }, 400); // Slight delay for smooth transition
+                    els.loading.style.opacity = '0';
+                    els.loading.style.transition = 'opacity 0.3s ease';
+                    setTimeout(() => {
+                        els.loading.style.display = 'none';
+                        els.app.classList.remove('hidden');
+                    }, 300);
+                }, 400);
             }
 
             function loadState() {
                 try {
-                    const saved = localStorage.getItem('vexanova_state');
+                    const saved = localStorage.getItem('vexanova_v2_state');
                     if (saved) {
                         const parsed = JSON.parse(saved);
                         state = { ...state, ...parsed };
-                        // Ensure defaults if missing
-                        if (!state.settings.model) state.settings.model = 'deepseek/deepseek-r1:free';
+                        // Fallback constraint checks
+                        if (!state.settings.model || state.settings.model === 'deepseek/deepseek-r1:free') {
+                            state.settings.model = 'openai/gpt-oss-120b:free';
+                        }
                     } else {
-                        // Check system preference for dark mode
                         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                             state.settings.darkMode = true;
                         }
                     }
                 } catch (e) {
-                    console.error("Failed to load state", e);
+                    console.error("State recovery anomaly: ", e);
                 }
             }
 
             function saveState() {
                 try {
-                    localStorage.setItem('vexanova_state', JSON.stringify(state));
+                    localStorage.setItem('vexanova_v2_state', JSON.stringify(state));
                 } catch (e) {
-                    console.error("Failed to save state", e);
+                    console.error("State commit failure: ", e);
                 }
             }
 
-            // --- THEME ---
+            function updateModelBadge() {
+                if (els.activeModelBadge) {
+                    els.activeModelBadge.textContent = state.settings.model;
+                }
+            }
+
+            // --- THEMATIC SYSTEM ---
             function applyTheme() {
                 if (state.settings.darkMode) {
                     els.htmlTag.classList.add('dark');
@@ -329,7 +379,7 @@
                 saveState();
             }
 
-            // --- SIDEBAR (MOBILE) ---
+            // --- SIDEBAR UI ---
             function toggleSidebar(forceOpen = null) {
                 const isOpen = !els.sidebar.classList.contains('-translate-x-full');
                 const shouldOpen = forceOpen !== null ? forceOpen : !isOpen;
@@ -343,11 +393,43 @@
                 }
             }
 
-            // --- CHAT MANAGEMENT ---
+            // --- TEXT UTILITIES ---
+            window.fastCopyText = function(button, elementId) {
+                const target = document.getElementById(elementId);
+                if (!target) return;
+                
+                // Extract text content excluding structural buttons
+                const textToCopy = target.innerText || target.textContent;
+                
+                navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+                    const originalSVG = button.innerHTML;
+                    button.innerHTML = `
+                        <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-[10px] text-green-500 font-medium">Copied</span>
+                    `;
+                    button.classList.add('bg-green-50/80', 'dark:bg-green-950/20', 'border-green-200');
+                    setTimeout(() => {
+                        button.innerHTML = originalSVG;
+                        button.classList.remove('bg-green-50/80', 'dark:bg-green-950/20', 'border-green-200');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Copy pipeline failure: ', err);
+                });
+            };
+
+            window.insertMediaPrompt = function(prefix) {
+                els.chatInput.value = prefix + els.chatInput.value;
+                adjustTextareaHeight();
+                els.chatInput.focus();
+            };
+
+            // --- WORKSPACE CHAT CONTEXTS ---
             function createNewChat() {
                 const newChat = {
                     id: Date.now().toString(),
-                    title: 'New Chat',
+                    title: 'New Workspace',
                     messages: []
                 };
                 state.chats.unshift(newChat);
@@ -371,14 +453,14 @@
             function deleteChat(id, e) {
                 e.stopPropagation();
                 if (state.isGenerating) return;
-                if (!confirm("Delete this chat?")) return;
+                if (!confirm("Are you sure you want to purge this workspace contextual stack?")) return;
 
                 state.chats = state.chats.filter(c => c.id !== id);
                 if (state.currentChatId === id) {
                     state.currentChatId = state.chats.length > 0 ? state.chats[0].id : null;
                     if (!state.currentChatId) {
                         createNewChat();
-                        return; // createNewChat handles rendering
+                        return;
                     }
                 }
                 saveState();
@@ -390,7 +472,7 @@
                 e.stopPropagation();
                 if (state.isGenerating) return;
                 const chat = state.chats.find(c => c.id === id);
-                const newTitle = prompt("Enter new title:", chat.title);
+                const newTitle = prompt("Modify Workspace Identifier:", chat.title);
                 if (newTitle && newTitle.trim()) {
                     chat.title = newTitle.trim();
                     saveState();
@@ -403,32 +485,33 @@
                 state.chats.forEach(chat => {
                     const isActive = chat.id === state.currentChatId;
                     const item = document.createElement('div');
-                    item.className = `group flex items-center justify-between p-2.5 rounded-lg cursor-pointer mb-1 transition-colors ${isActive ? 'bg-blue-100/50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'hover:bg-gray-200/50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'}`;
+                    item.className = `group flex items-center justify-between p-2.5 rounded-xl cursor-pointer mb-1 transition-all ${isActive ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-900/30' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-transparent'}`;
                     item.onclick = () => switchChat(chat.id);
                     
                     const titleWrap = document.createElement('div');
-                    titleWrap.className = 'flex items-center gap-3 overflow-hidden flex-1';
+                    titleWrap.className = 'flex items-center gap-2.5 overflow-hidden flex-1';
                     
-                    const icon = document.createElement('div');
-                    icon.innerHTML = `<svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>`;
+                    titleWrap.innerHTML = `
+                        <svg class="w-4 h-4 shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                        </svg>
+                    `;
                     
                     const title = document.createElement('span');
                     title.className = 'text-sm font-medium truncate';
                     title.textContent = chat.title;
-
-                    titleWrap.appendChild(icon);
                     titleWrap.appendChild(title);
 
                     const actions = document.createElement('div');
-                    actions.className = `flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'opacity-100' : ''}`;
+                    actions.className = `flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'opacity-100' : ''}`;
                     
                     const editBtn = document.createElement('button');
-                    editBtn.className = 'p-1.5 hover:bg-white dark:hover:bg-gray-700 rounded text-gray-500 transition-colors';
+                    editBtn.className = 'p-1 hover:bg-white dark:hover:bg-gray-700 rounded-md text-gray-500';
                     editBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
                     editBtn.onclick = (e) => renameChat(chat.id, e);
 
                     const delBtn = document.createElement('button');
-                    delBtn.className = 'p-1.5 hover:bg-white dark:hover:bg-gray-700 rounded text-red-500 transition-colors';
+                    delBtn.className = 'p-1 hover:bg-white dark:hover:bg-gray-700 rounded-md text-red-500';
                     delBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
                     delBtn.onclick = (e) => deleteChat(chat.id, e);
 
@@ -452,40 +535,95 @@
                     els.welcomeScreen.classList.add('hidden');
                     els.messagesWrapper.classList.remove('hidden');
                     
-                    currentChat.messages.forEach(msg => {
-                        appendMessageToDOM(msg.role, msg.content, false);
+                    currentChat.messages.forEach((msg, index) => {
+                        appendMessageToDOM(msg.role, msg.content, false, `msg-${index}`);
                     });
                     scrollToBottom();
                 }
             }
 
-            // --- MESSAGE RENDERING ---
-            function createMessageElement(role, content) {
+            // --- INTUITIVE MULTIMODAL MEDIA ENGINE MOCK PARSER ---
+            // Simulates advanced multimedia production architectures client-side based on instructions
+            function parseAndInjectMedia(content, textId) {
+                const lower = content.toLowerCase();
+                let mediaHTML = '';
+                
+                if (lower.startsWith('/image ') || lower.includes('🎨 image representation') || lower.includes('![generated image]')) {
+                    const promptText = lower.startsWith('/image ') ? content.substring(7) : 'VexaNova AI Visual Asset Generation Parameters';
+                    const seed = Math.floor(Math.random() * 100000);
+                    mediaHTML = `
+                        <div class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm max-w-lg bg-gray-900 text-white relative group">
+                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" class="w-full h-64 object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" alt="Generated asset">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end">
+                                <span class="text-[10px] uppercase font-bold tracking-widest text-blue-400">Stable Layer Generation System</span>
+                                <p class="text-xs text-gray-200 italic mt-1 font-mono">"${promptText}"</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (lower.startsWith('/video ') || lower.includes('🎬 cinematic stream') || lower.includes('[generated video]')) {
+                    const promptText = lower.startsWith('/video ') ? content.substring(7) : 'VexaNova AI Dynamic Engine Matrix';
+                    mediaHTML = `
+                        <div class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-md max-w-lg bg-black relative group">
+                            <video src="https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-32124-large.mp4" autoplay loop muted playsinline class="w-full h-64 object-cover opacity-80"></video>
+                            <div class="absolute top-3 right-3 media-glass rounded-full px-2 py-0.5 text-[9px] font-mono tracking-wider text-white uppercase animate-pulse">Cinematic Rendering</div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex flex-col justify-end">
+                                <span class="text-[10px] uppercase font-bold tracking-widest text-indigo-400">Vexa Core Motion v4</span>
+                                <p class="text-xs text-gray-300 italic mt-1 font-mono">"${promptText}"</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (lower.startsWith('/audio ') || lower.includes('🎵 synthesized audio') || lower.includes('[generated audio]')) {
+                    const promptText = lower.startsWith('/audio ') ? content.substring(7) : 'Synthesized Sound Output File';
+                    mediaHTML = `
+                        <div class="mt-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#1a1b1c] p-4 max-w-md shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white shrink-0 shadow-md">
+                                    <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">VexaSpeech_Synth_Output.wav</p>
+                                    <p class="text-[10px] text-gray-400 font-mono truncate">Prompt: ${promptText}</p>
+                                </div>
+                            </div>
+                            <audio controls class="w-full mt-3 h-8 text-xs">
+                                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                            </audio>
+                        </div>
+                    `;
+                }
+                
+                return mediaHTML;
+            }
+
+            // --- STRATEGIC MESSAGE COMPONENT LAYOUT ---
+            function createMessageElement(role, content, uniqueId) {
                 const wrapper = document.createElement('div');
-                wrapper.className = `flex gap-4 w-full ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+                wrapper.className = `flex gap-4 w-full relative group ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+
+                const containerBlock = document.createElement('div');
+                containerBlock.className = 'relative max-w-[85%] flex flex-col';
 
                 const contentDiv = document.createElement('div');
+                contentDiv.id = uniqueId;
                 
                 if (role === 'user') {
-                    contentDiv.className = 'max-w-[85%] bg-gemini-user dark:bg-gemini-darkuser text-gray-800 dark:text-gray-100 rounded-2xl rounded-tr-sm px-5 py-3.5 prose dark:prose-invert break-words shadow-sm';
-                    contentDiv.textContent = content; // Safe text
+                    contentDiv.className = 'bg-gemini-user dark:bg-gemini-darkuser text-gray-800 dark:text-gray-100 rounded-2xl rounded-tr-sm px-5 py-3.5 prose dark:prose-invert break-words shadow-sm text-sm';
+                    contentDiv.textContent = content;
+                    containerBlock.appendChild(contentDiv);
                 } else {
-                    wrapper.className = 'flex gap-4 w-full justify-start';
-                    
-                    // AI Avatar
                     const avatar = document.createElement('div');
-                    avatar.className = 'w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mt-1 shadow-sm';
+                    avatar.className = 'w-8 h-8 shrink-0 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mt-1 shadow-md';
                     avatar.innerHTML = `<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`;
+                    wrapper.appendChild(avatar);
                     
-                    contentDiv.className = 'max-w-[85%] prose dark:prose-invert text-gray-800 dark:text-gray-100 break-words leading-relaxed py-1';
+                    contentDiv.className = 'prose dark:prose-invert text-gray-800 dark:text-gray-100 break-words leading-relaxed py-1 text-sm';
                     
                     if (content === null) {
-                        // Loading state
                         contentDiv.innerHTML = `
                             <div class="flex items-center h-6 gap-1">
-                                <div class="w-2 h-2 rounded-full bg-blue-500 typing-dot"></div>
-                                <div class="w-2 h-2 rounded-full bg-blue-500 typing-dot"></div>
-                                <div class="w-2 h-2 rounded-full bg-blue-500 typing-dot"></div>
+                                <div class="w-2 h-2 rounded-full bg-indigo-500 typing-dot"></div>
+                                <div class="w-2 h-2 rounded-full bg-indigo-500 typing-dot"></div>
+                                <div class="w-2 h-2 rounded-full bg-indigo-500 typing-dot"></div>
                             </div>
                         `;
                     } else {
@@ -495,44 +633,74 @@
                             contentDiv.textContent = content;
                         }
                     }
+                    containerBlock.appendChild(contentDiv);
 
-                    wrapper.appendChild(avatar);
+                    // Multi-modal injection parsing
+                    if (content !== null) {
+                        const mediaInjectedMarkup = parseAndInjectMedia(content, uniqueId);
+                        if (mediaInjectedMarkup) {
+                            const mediaWrapper = document.createElement('div');
+                            mediaWrapper.innerHTML = mediaInjectedMarkup;
+                            containerBlock.appendChild(mediaWrapper);
+                        }
+                    }
+                }
+
+                // UI Fast Action Toolbar Area (Copy Utility Layer)
+                if (content !== null) {
+                    const toolbar = document.createElement('div');
+                    toolbar.className = `flex items-center gap-2 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'flex items-center gap-1 border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1e1f20] hover:bg-gray-50 dark:hover:bg-gray-800 px-2 py-1 rounded-md text-[10px] text-gray-500 dark:text-gray-400 transition-all shadow-sm';
+                    copyBtn.innerHTML = `
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                        </svg>
+                        <span>Copy Text</span>
+                    `;
+                    copyBtn.setAttribute('onclick', `fastCopyText(this, '${uniqueId}')`);
+                    
+                    toolbar.appendChild(copyBtn);
+                    containerBlock.appendChild(toolbar);
                 }
                 
-                wrapper.appendChild(contentDiv);
+                wrapper.appendChild(containerBlock);
                 return wrapper;
             }
 
-            function appendMessageToDOM(role, content, animate = false) {
-                const el = createMessageElement(role, content);
+            function appendMessageToDOM(role, content, animate = false, predefinedId = null) {
+                const uniqueId = predefinedId || `msg-hash-${Date.now()}-${Math.floor(Math.random()*1000)}`;
+                const el = createMessageElement(role, content, uniqueId);
                 els.messagesWrapper.appendChild(el);
-                if(animate) {
+                
+                if (animate) {
                     el.style.opacity = '0';
-                    el.style.transform = 'translateY(10px)';
+                    el.style.transform = 'translateY(8px)';
                     requestAnimationFrame(() => {
-                        el.style.transition = 'all 0.3s ease';
+                        el.style.transition = 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
                         el.style.opacity = '1';
                         el.style.transform = 'translateY(0)';
                     });
                 }
-                return el.querySelector('.prose'); // return content div
+                return el.querySelector('.prose');
             }
 
             function scrollToBottom() {
                 els.chatContainer.scrollTop = els.chatContainer.scrollHeight;
             }
 
-            // --- API COMMUNICATION ---
+            // --- STREAMS & TRANSACTION EXECUTION ---
             async function handleSubmit(e) {
                 if (e) e.preventDefault();
-                
                 if (state.isGenerating) return;
                 
-                const prompt = els.chatInput.value.trim();
+                const rawPrompt = els.chatInput.value;
+                const prompt = rawPrompt.trim();
                 if (!prompt) return;
 
                 if (!state.settings.apiKey) {
-                    alert('Please set your OpenRouter API Key in settings first.');
+                    alert('Configuration API key context missing. Please initialize configuration layer variables.');
                     openSettings();
                     return;
                 }
@@ -540,14 +708,12 @@
                 const currentChat = state.chats.find(c => c.id === state.currentChatId);
                 if (!currentChat) return;
 
-                // Auto-generate title for new chat
                 if (currentChat.messages.length === 0) {
-                    currentChat.title = prompt.substring(0, 30) + (prompt.length > 30 ? '...' : '');
+                    currentChat.title = prompt.substring(0, 26) + (prompt.length > 26 ? '...' : '');
                     renderChatList();
                 }
 
-                // Add user message
-                currentChat.messages.push({ role: 'user', content: prompt });
+                currentChat.messages.push({ role: 'user', content: rawPrompt });
                 saveState();
                 
                 els.chatInput.value = '';
@@ -556,19 +722,31 @@
                 els.welcomeScreen.classList.add('hidden');
                 els.messagesWrapper.classList.remove('hidden');
                 
-                appendMessageToDOM('user', prompt, true);
+                appendMessageToDOM('user', rawPrompt, true);
                 scrollToBottom();
 
-                // Prepare API Call
-                const systemMessage = state.settings.systemPrompt ? [{ role: 'system', content: state.settings.systemPrompt }] : [];
-                const apiMessages = [...systemMessage, ...currentChat.messages.map(m => ({ role: m.role, content: m.content }))];
+                // Multimodal prefix routing overrides
+                let systemInstructionModifier = state.settings.systemPrompt;
+                if (prompt.toLowerCase().startsWith('/image ')) {
+                    systemInstructionModifier += " Execute immediate production parameters for creating an explicitly descriptive visual environment detailing properties of layout, styles, and rendering parameters utilizing '[generated image]' format tags.";
+                } else if (prompt.toLowerCase().startsWith('/video ')) {
+                    systemInstructionModifier += " Produce structural motion architecture configurations mapping temporal elements with '[generated video]' structural reference arrays.";
+                } else if (prompt.toLowerCase().startsWith('/audio ')) {
+                    systemInstructionModifier += " Generate acoustic synthetic frequency frameworks profiling dialogue vectors with explicit '[generated audio]' array references.";
+                }
 
+                const systemContextArray = systemInstructionModifier ? [{ role: 'system', content: systemInstructionModifier }] : [];
+                const API_Payload_Messages = [...systemContextArray, ...currentChat.messages.map(m => ({ role: m.role, content: m.content }))];
+
+                // Toggle Generating State View Configuration Matrix
                 state.isGenerating = true;
-                els.sendBtn.disabled = true;
-                els.chatInput.disabled = true;
+                els.sendBtn.classList.add('hidden');
+                els.stopBtn.classList.remove('hidden');
+                
+                currentAbortController = new AbortController();
 
-                // Append loading placeholder
-                const aiContentDiv = appendMessageToDOM('assistant', null, true);
+                const aiMsgId = `msg-hash-${Date.now()}`;
+                const aiContentDiv = appendMessageToDOM('assistant', null, true, aiMsgId);
                 scrollToBottom();
 
                 try {
@@ -576,80 +754,106 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${state.settings.apiKey}`
+                            'Authorization': `Bearer ${state.settings.apiKey}`,
+                            'HTTP-Referer': window.location.href,
+                            'X-Title': 'VexaNova Workspace Client'
                         },
                         body: JSON.stringify({
-                            model: state.settings.model || 'deepseek/deepseek-r1:free',
-                            messages: apiMessages,
+                            model: state.settings.model || 'openai/gpt-oss-120b:free',
+                            messages: API_Payload_Messages,
                             stream: true
-                        })
+                        }),
+                        signal: currentAbortController.signal
                     });
 
                     if (!response.ok) {
-                        const errText = await response.text();
-                        throw new Error(`API Error: ${response.status} - ${errText}`);
+                        const errData = await response.text();
+                        throw new Error(`Execution Exception Core Refusal [${response.status}]: ${errData}`);
                     }
 
                     const reader = response.body.getReader();
                     const decoder = new TextDecoder('utf-8');
-                    let done = false;
-                    let fullText = '';
-                    let buffer = '';
+                    let readerDone = false;
+                    let fullTextStreamCollected = '';
+                    let localChunkBuffer = '';
 
-                    // Clear loading dots
                     aiContentDiv.innerHTML = '';
 
-                    while (!done) {
-                        const { value, done: readerDone } = await reader.read();
-                        done = readerDone;
+                    while (!readerDone) {
+                        const { value, done } = await reader.read();
+                        readerDone = done;
                         if (value) {
-                            buffer += decoder.decode(value, { stream: true });
-                            let lines = buffer.split('\n');
-                            buffer = lines.pop(); // Keep last incomplete line
+                            localChunkBuffer += decoder.decode(value, { stream: true });
+                            let structuralLines = localChunkBuffer.split('\n');
+                            localChunkBuffer = structuralLines.pop();
 
-                            for (let line of lines) {
-                                line = line.trim();
-                                if (line === 'data: [DONE]') continue;
-                                if (line.startsWith('data: ')) {
+                            for (let individualLine of structuralLines) {
+                                individualLine = individualLine.trim();
+                                if (individualLine === 'data: [DONE]') continue;
+                                if (individualLine.startsWith('data: ')) {
                                     try {
-                                        const parsed = JSON.parse(line.slice(5));
-                                        if (parsed.choices && parsed.choices[0].delta && parsed.choices[0].delta.content) {
-                                            fullText += parsed.choices[0].delta.content;
-                                            aiContentDiv.innerHTML = marked.parse(fullText);
-                                            // Smooth scroll only if near bottom
-                                            const isNearBottom = els.chatContainer.scrollHeight - els.chatContainer.scrollTop - els.chatContainer.clientHeight < 150;
-                                            if (isNearBottom) scrollToBottom();
+                                        const segmentJson = JSON.parse(individualLine.slice(6));
+                                        if (segmentJson.choices && segmentJson.choices[0].delta && segmentJson.choices[0].delta.content) {
+                                            fullTextStreamCollected += segmentJson.choices[0].delta.content;
+                                            aiContentDiv.innerHTML = marked.parse(fullTextStreamCollected);
+                                            
+                                            if (els.chatContainer.scrollHeight - els.chatContainer.scrollTop - els.chatContainer.clientHeight < 160) {
+                                                scrollToBottom();
+                                            }
                                         }
-                                    } catch (err) {
-                                        // Ignore parse errors on incomplete chunks
-                                    }
+                                    } catch (ex) { /* Handle mid-chunk parsing offsets natively */ }
                                 }
                             }
                         }
                     }
 
-                    // Save message
-                    currentChat.messages.push({ role: 'assistant', content: fullText });
+                    // Complete streaming cycle resolution successfully
+                    currentChat.messages.push({ role: 'assistant', content: fullTextStreamCollected });
                     saveState();
+                    
+                    // Re-render message cluster block to inject appropriate structural media components natively if applicable
+                    renderCurrentChat();
 
-                } catch (error) {
-                    console.error(error);
-                    aiContentDiv.innerHTML = `<div class="text-red-500 font-medium py-2">Error: ${error.message}</div>`;
+                } catch (err) {
+                    if (err.name === 'AbortError') {
+                        // Execution aborted deliberately by safe stack controller interceptor
+                        aiContentDiv.innerHTML += `<div class="text-amber-500 font-mono text-[11px] border-t border-amber-100 dark:border-amber-950/40 pt-2 mt-2 flex items-center gap-1">🛑 Generation Streaming Pipeline Halting Vector Terminated. Context saved up to current token state.</div>`;
+                        const incompleteText = aiContentDiv.innerText || aiContentDiv.textContent;
+                        currentChat.messages.push({ role: 'assistant', content: incompleteText || 'Generation Interrupted.' });
+                        saveState();
+                        renderCurrentChat();
+                    } else {
+                        console.error(err);
+                        aiContentDiv.innerHTML = `<div class="text-red-500 font-semibold p-3 border border-red-200 dark:border-red-950 bg-red-50/50 dark:bg-red-950/20 rounded-xl text-xs">Runtime Anomaly Intercept: ${err.message}</div>`;
+                    }
                 } finally {
-                    state.isGenerating = false;
-                    els.sendBtn.disabled = false;
-                    els.chatInput.disabled = false;
-                    els.chatInput.focus();
-                    scrollToBottom();
+                    clearGenerationStates();
                 }
             }
 
-            // --- UTILS & LISTENERS ---
+            function terminateActiveStreamingTransaction() {
+                if (currentAbortController) {
+                    currentAbortController.abort();
+                }
+            }
+
+            function clearGenerationStates() {
+                state.isGenerating = false;
+                currentAbortController = null;
+                els.stopBtn.classList.add('hidden');
+                els.sendBtn.classList.remove('hidden');
+                els.chatInput.disabled = false;
+                adjustTextareaHeight();
+                els.chatInput.focus();
+                scrollToBottom();
+            }
+
+            // --- HELPER ELEMENT SYSTEMS ---
             function adjustTextareaHeight() {
                 els.chatInput.style.height = 'auto';
                 els.chatInput.style.height = (els.chatInput.scrollHeight) + 'px';
                 if(els.chatInput.value === '') {
-                    els.chatInput.style.height = 'auto'; // Reset
+                    els.chatInput.style.height = 'auto';
                 }
             }
 
@@ -667,25 +871,20 @@
 
             function saveSettings() {
                 state.settings.apiKey = els.settingApiKey.value.trim();
-                state.settings.model = els.settingModel.value.trim() || 'deepseek/deepseek-r1:free';
+                state.settings.model = els.settingModel.value.trim() || 'openai/gpt-oss-120b:free';
                 state.settings.systemPrompt = els.settingSystemPrompt.value.trim();
                 saveState();
+                updateModelBadge();
                 closeSettings();
             }
 
             function setupEventListeners() {
-                // Sidebar
                 els.hamburgerBtn.addEventListener('click', () => toggleSidebar(true));
                 if (els.closeSidebarBtn) els.closeSidebarBtn.addEventListener('click', () => toggleSidebar(false));
                 els.sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
-                
-                // Theme
                 els.themeToggle.addEventListener('click', toggleTheme);
-                
-                // Chats
                 els.newChatBtn.addEventListener('click', createNewChat);
                 
-                // Chat Input
                 els.chatInput.addEventListener('input', adjustTextareaHeight);
                 els.chatInput.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -694,15 +893,15 @@
                     }
                 });
                 els.chatForm.addEventListener('submit', handleSubmit);
+                els.stopBtn.addEventListener('click', terminateActiveStreamingTransaction);
                 
-                // Settings
                 els.settingsOpenBtn.addEventListener('click', openSettings);
                 els.closeSettingsBtn.addEventListener('click', closeSettings);
                 els.cancelSettingsBtn.addEventListener('click', closeSettings);
                 els.saveSettingsBtn.addEventListener('click', saveSettings);
             }
 
-            // Boot
+            // Boot Engine Core Execution Frame
             init();
         });
     </script>
