@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VexaNova AI - Vexa Labs Inc.</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,7 +26,6 @@
         }
     </script>
     
-    <!-- Marked.js for Markdown parsing -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
     <style>
@@ -88,7 +86,6 @@
 </head>
 <body class="bg-white dark:bg-gemini-darkbg text-gray-800 dark:text-gray-200 h-[100dvh] w-screen overflow-hidden flex font-sans transition-colors duration-200">
 
-    <!-- Loading Screen -->
     <div id="loading" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-gemini-darkbg">
         <svg class="w-12 h-12 text-blue-500 animate-spin mb-4" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -98,13 +95,10 @@
         <p class="text-sm text-gray-500 mt-2">Vexa Labs Inc.</p>
     </div>
 
-    <!-- App Container -->
     <div id="app" class="hidden flex h-full w-full relative">
         
-        <!-- Mobile Sidebar Overlay -->
         <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity md:hidden"></div>
 
-        <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-gemini-sidebar dark:bg-gemini-darksidebar transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 flex flex-col border-r border-transparent dark:border-gray-800 h-full">
             <div class="p-4 flex items-center justify-between">
                 <button id="new-chat-btn" class="flex items-center gap-3 bg-white dark:bg-[#282a2c] hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-3 rounded-full shadow-sm text-sm font-medium w-full transition-colors border dark:border-gray-700">
@@ -119,10 +113,13 @@
             <div class="px-4 pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent Workspace</div>
             
             <div id="chat-list" class="flex-1 overflow-y-auto px-2 space-y-1 no-scrollbar">
-                <!-- Chat items injected here -->
-            </div>
+                </div>
 
-            <div class="p-4 mt-auto border-t border-gray-200 dark:border-gray-800 space-y-2">
+            <div class="p-4 mt-auto border-t border-gray-200 dark:border-gray-800 space-y-1.5">
+                <button id="export-chat-btn" class="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium text-gray-600 dark:text-gray-300">
+                    <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Export Conversation
+                </button>
                 <button id="settings-open-btn" class="flex items-center gap-3 px-3 py-2 w-full text-left rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
                     <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Settings
@@ -130,9 +127,7 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col min-w-0 h-full relative bg-white dark:bg-gemini-darkbg">
-            <!-- Header -->
             <header class="flex items-center justify-between p-3 md:p-4 shrink-0 border-b border-gray-100 dark:border-gray-800">
                 <div class="flex items-center gap-2">
                     <button id="hamburger-btn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden">
@@ -142,8 +137,17 @@
                         VexaNova <span class="bg-gradient-to-r from-blue-500 to-indigo-500 text-transparent bg-clip-text font-bold">AI</span>
                     </h1>
                 </div>
-                <div class="flex items-center gap-4">
-                    <span id="active-model-badge" class="hidden sm:inline-block text-xs bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-md font-mono text-gray-500 max-w-[180px] truncate"></span>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <select id="model-selector" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-xs px-2.5 py-1.5 rounded-lg font-mono text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer max-w-[210px] truncate transition-all">
+                            <option value="openai/gpt-oss-120b:free">OpenAI</option>
+                            <option value="nvidia/nemotron-3-super-120b-a12b:free">Nemotron 3 Super</option>
+                            <option value="arcee-ai/trinity-large-thinking:free">Arcee AI: Trinity Large Thinking</option>
+                            <option value="baidu/cobuddy:free">Baidu Qianfan: CoBuddy</option>
+                            <option value="z-ai/glm-4.5-air:free">Z.ai: GLM 4.5 Air</option>
+                        </select>
+                    </div>
+                    <span id="active-model-badge" class="hidden"></span>
                     <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-300">
                         <svg id="icon-sun" class="w-6 h-6 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                         <svg id="icon-moon" class="w-6 h-6 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
@@ -151,9 +155,7 @@
                 </div>
             </header>
 
-            <!-- Chat Area -->
             <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:px-12 lg:px-32 scroll-smooth pb-44">
-                <!-- Welcome Screen -->
                 <div id="welcome-screen" class="h-full flex flex-col items-center justify-center text-center opacity-100 transition-opacity my-auto py-12">
                     <div class="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
                         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -161,7 +163,6 @@
                     <h2 class="text-3xl font-semibold mb-2">Omni-Creative Engine</h2>
                     <p class="text-gray-500 dark:text-gray-400 max-w-md mb-8">Generate text, structured markdown, code, realistic images, cinematic videos, or synthetic audio pipelines instantly.</p>
                     
-                    <!-- Quick Actions Grid -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-2xl px-4">
                         <button onclick="insertMediaPrompt('/image ')" class="flex flex-col items-center p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 bg-gray-50/50 dark:bg-[#1a1b1c] text-left transition-all">
                             <svg class="w-6 h-6 text-blue-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -181,33 +182,37 @@
                     </div>
                 </div>
                 
-                <!-- Messages appended here -->
                 <div id="messages-wrapper" class="flex flex-col gap-6 hidden"></div>
             </div>
 
-            <!-- Input Form Container -->
             <div class="absolute bottom-0 w-full bg-gradient-to-t from-white via-white to-transparent dark:from-gemini-darkbg dark:via-gemini-darkbg pt-6 pb-4 px-4 md:px-12 lg:px-32">
                 <div class="max-w-4xl mx-auto relative">
                     
-                    <!-- Quick toolbar tags -->
                     <div class="flex gap-2 mb-2 px-2 overflow-x-auto no-scrollbar">
                         <button onclick="insertMediaPrompt('/image ')" class="text-xs bg-gray-100 dark:bg-[#282a2c] hover:bg-blue-50 dark:hover:bg-blue-950/30 border dark:border-gray-700 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors font-medium">📷 Image</button>
                         <button onclick="insertMediaPrompt('/video ')" class="text-xs bg-gray-100 dark:bg-[#282a2c] hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border dark:border-gray-700 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors font-medium">🎬 Video</button>
                         <button onclick="insertMediaPrompt('/audio ')" class="text-xs bg-gray-100 dark:bg-[#282a2c] hover:bg-purple-50 dark:hover:bg-purple-950/30 border dark:border-gray-700 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors font-medium">🎵 Audio</button>
                     </div>
 
-                    <form id="chat-form" class="relative flex items-end shadow-lg border border-gray-200 dark:border-gray-700 rounded-3xl bg-white dark:bg-[#1e1f20] overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
-                        <textarea id="chat-input" rows="1" placeholder="Type a message or use /image, /video, /audio..." class="w-full max-h-48 py-3.5 pl-5 pr-24 bg-transparent outline-none resize-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 no-scrollbar"></textarea>
+                    <form id="chat-form" class="relative flex flex-col shadow-lg border border-gray-200 dark:border-gray-700 rounded-3xl bg-white dark:bg-[#1e1f20] overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
+                        <div id="file-preview-container" class="flex flex-wrap gap-2 px-4 pt-3 hidden border-b border-gray-100 dark:border-gray-800/40 pb-2 bg-gray-50/50 dark:bg-black/10"></div>
                         
-                        <div class="absolute right-2 bottom-1.5 flex items-center gap-1">
-                            <!-- Stop Button (Hidden when not generating) -->
-                            <button type="button" id="stop-btn" class="hidden p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 transition-colors shadow-sm" title="Stop generating">
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"></rect></svg>
+                        <div class="relative flex items-end w-full">
+                            <button type="button" id="file-upload-trigger" class="p-2.5 mb-1.5 ml-2 text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0" title="Attach Code or Text Workspace Files">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
                             </button>
-                            <!-- Send Button -->
-                            <button type="submit" id="send-btn" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-indigo-500 transition-colors disabled:opacity-40">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                            </button>
+                            <input type="file" id="file-input" class="hidden" multiple />
+
+                            <textarea id="chat-input" rows="1" placeholder="Type a message or use /image, /video, /audio..." class="w-full max-h-48 py-3.5 pl-2 pr-24 bg-transparent outline-none resize-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 no-scrollbar"></textarea>
+                            
+                            <div class="absolute right-2 bottom-1.5 flex items-center gap-1">
+                                <button type="button" id="stop-btn" class="hidden p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:text-red-400 transition-colors shadow-sm" title="Stop generating">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"></rect></svg>
+                                </button>
+                                <button type="submit" id="send-btn" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-indigo-500 transition-colors disabled:opacity-40">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                </button>
+                            </div>
                         </div>
                     </form>
                     <div class="text-center mt-2 text-[11px] text-gray-400 dark:text-gray-500">
@@ -218,7 +223,6 @@
         </main>
     </div>
 
-    <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-[#1e1f20] w-full max-w-md rounded-2xl shadow-2xl flex flex-col transform transition-all border dark:border-gray-700">
             <div class="flex justify-between items-center p-5 border-b dark:border-gray-700">
@@ -252,7 +256,6 @@
         </div>
     </div>
 
-    <!-- MAIN SCRIPT EXECUTION -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
@@ -270,6 +273,7 @@
             };
 
             let currentAbortController = null;
+            let uploadedFiles = [];
 
             // --- OBJECT DOM MAP ---
             const els = {
@@ -291,6 +295,11 @@
                 sendBtn: document.getElementById('send-btn'),
                 stopBtn: document.getElementById('stop-btn'),
                 activeModelBadge: document.getElementById('active-model-badge'),
+                modelSelector: document.getElementById('model-selector'),
+                exportChatBtn: document.getElementById('export-chat-btn'),
+                fileUploadTrigger: document.getElementById('file-upload-trigger'),
+                fileInput: document.getElementById('file-input'),
+                filePreviewContainer: document.getElementById('file-preview-container'),
                 // Settings Elements
                 settingsModal: document.getElementById('settings-modal'),
                 settingsOpenBtn: document.getElementById('settings-open-btn'),
@@ -314,7 +323,7 @@
                     createNewChat();
                 } else {
                     if (!state.currentChatId) {
-                        state.currentChatId = state.chats[0].id;
+                        state.currentChatId = state.chats[0].id.toString();
                     }
                     renderCurrentChat();
                 }
@@ -336,8 +345,9 @@
                     if (saved) {
                         const parsed = JSON.parse(saved);
                         state = { ...state, ...parsed };
+                        if (state.currentChatId) state.currentChatId = state.currentChatId.toString();
                         // Fallback constraint checks
-                        if (!state.settings.model || state.settings.model === 'deepseek/deepseek-r1:free') {
+                        if (!state.settings.model) {
                             state.settings.model = 'openai/gpt-oss-120b:free';
                         }
                     } else {
@@ -361,6 +371,28 @@
             function updateModelBadge() {
                 if (els.activeModelBadge) {
                     els.activeModelBadge.textContent = state.settings.model;
+                }
+                if (els.modelSelector) {
+                    let optionExists = false;
+                    for (let i = 0; i < els.modelSelector.options.length; i++) {
+                        if (els.modelSelector.options[i].value === state.settings.model) {
+                            optionExists = true;
+                            break;
+                        }
+                    }
+                    if (optionExists) {
+                        els.modelSelector.value = state.settings.model;
+                    } else {
+                        let customOpt = els.modelSelector.querySelector('option[data-custom="true"]');
+                        if (!customOpt) {
+                            customOpt = document.createElement('option');
+                            customOpt.setAttribute('data-custom', 'true');
+                            els.modelSelector.appendChild(customOpt);
+                        }
+                        customOpt.value = state.settings.model;
+                        customOpt.textContent = `custom: ${state.settings.model.split('/').pop()}`;
+                        els.modelSelector.value = state.settings.model;
+                    }
                 }
             }
 
@@ -433,7 +465,7 @@
                     messages: []
                 };
                 state.chats.unshift(newChat);
-                state.currentChatId = newChat.id;
+                state.currentChatId = newChat.id.toString();
                 saveState();
                 renderChatList();
                 renderCurrentChat();
@@ -443,7 +475,7 @@
 
             function switchChat(id) {
                 if (state.isGenerating) return;
-                state.currentChatId = id;
+                state.currentChatId = id.toString();
                 saveState();
                 renderChatList();
                 renderCurrentChat();
@@ -451,13 +483,16 @@
             }
 
             function deleteChat(id, e) {
-                e.stopPropagation();
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 if (state.isGenerating) return;
                 if (!confirm("Are you sure you want to purge this workspace contextual stack?")) return;
 
-                state.chats = state.chats.filter(c => c.id !== id);
-                if (state.currentChatId === id) {
-                    state.currentChatId = state.chats.length > 0 ? state.chats[0].id : null;
+                state.chats = state.chats.filter(c => c.id.toString() !== id.toString());
+                if (state.currentChatId && state.currentChatId.toString() === id.toString()) {
+                    state.currentChatId = state.chats.length > 0 ? state.chats[0].id.toString() : null;
                     if (!state.currentChatId) {
                         createNewChat();
                         return;
@@ -469,9 +504,12 @@
             }
 
             function renameChat(id, e) {
-                e.stopPropagation();
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
                 if (state.isGenerating) return;
-                const chat = state.chats.find(c => c.id === id);
+                const chat = state.chats.find(c => c.id.toString() === id.toString());
                 const newTitle = prompt("Modify Workspace Identifier:", chat.title);
                 if (newTitle && newTitle.trim()) {
                     chat.title = newTitle.trim();
@@ -483,7 +521,7 @@
             function renderChatList() {
                 els.chatList.innerHTML = '';
                 state.chats.forEach(chat => {
-                    const isActive = chat.id === state.currentChatId;
+                    const isActive = chat.id.toString() === state.currentChatId.toString();
                     const item = document.createElement('div');
                     item.className = `group flex items-center justify-between p-2.5 rounded-xl cursor-pointer mb-1 transition-all ${isActive ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/50 dark:border-indigo-900/30' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-transparent'}`;
                     item.onclick = () => switchChat(chat.id);
@@ -506,14 +544,24 @@
                     actions.className = `flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'opacity-100' : ''}`;
                     
                     const editBtn = document.createElement('button');
+                    editBtn.setAttribute('type', 'button');
                     editBtn.className = 'p-1 hover:bg-white dark:hover:bg-gray-700 rounded-md text-gray-500';
-                    editBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
-                    editBtn.onclick = (e) => renameChat(chat.id, e);
+                    editBtn.innerHTML = `<svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
+                    editBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        renameChat(chat.id, e);
+                    };
 
                     const delBtn = document.createElement('button');
+                    delBtn.setAttribute('type', 'button');
                     delBtn.className = 'p-1 hover:bg-white dark:hover:bg-gray-700 rounded-md text-red-500';
-                    delBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
-                    delBtn.onclick = (e) => deleteChat(chat.id, e);
+                    delBtn.innerHTML = `<svg class="w-3.5 h-3.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+                    delBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        deleteChat(chat.id, e);
+                    };
 
                     actions.appendChild(editBtn);
                     actions.appendChild(delBtn);
@@ -525,7 +573,7 @@
             }
 
             function renderCurrentChat() {
-                const currentChat = state.chats.find(c => c.id === state.currentChatId);
+                const currentChat = state.chats.find(c => c.id.toString() === state.currentChatId.toString());
                 els.messagesWrapper.innerHTML = '';
                 
                 if (!currentChat || currentChat.messages.length === 0) {
@@ -536,21 +584,19 @@
                     els.messagesWrapper.classList.remove('hidden');
                     
                     currentChat.messages.forEach((msg, index) => {
-                        appendMessageToDOM(msg.role, msg.content, false, `msg-${index}`);
+                        appendMessageToDOM(msg.role, msg.displayContent || msg.content, false, `msg-${index}`, msg.attachments);
                     });
                     scrollToBottom();
                 }
             }
 
             // --- INTUITIVE MULTIMODAL MEDIA ENGINE MOCK PARSER ---
-            // Simulates advanced multimedia production architectures client-side based on instructions
             function parseAndInjectMedia(content, textId) {
                 const lower = content.toLowerCase();
                 let mediaHTML = '';
                 
                 if (lower.startsWith('/image ') || lower.includes('🎨 image representation') || lower.includes('![generated image]')) {
                     const promptText = lower.startsWith('/image ') ? content.substring(7) : 'VexaNova AI Visual Asset Generation Parameters';
-                    const seed = Math.floor(Math.random() * 100000);
                     mediaHTML = `
                         <div class="mt-4 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm max-w-lg bg-gray-900 text-white relative group">
                             <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" class="w-full h-64 object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" alt="Generated asset">
@@ -596,7 +642,7 @@
             }
 
             // --- STRATEGIC MESSAGE COMPONENT LAYOUT ---
-            function createMessageElement(role, content, uniqueId) {
+            function createMessageElement(role, content, uniqueId, attachments = null) {
                 const wrapper = document.createElement('div');
                 wrapper.className = `flex gap-4 w-full relative group ${role === 'user' ? 'justify-end' : 'justify-start'}`;
 
@@ -609,6 +655,18 @@
                 if (role === 'user') {
                     contentDiv.className = 'bg-gemini-user dark:bg-gemini-darkuser text-gray-800 dark:text-gray-100 rounded-2xl rounded-tr-sm px-5 py-3.5 prose dark:prose-invert break-words shadow-sm text-sm';
                     contentDiv.textContent = content;
+
+                    if (attachments && attachments.length > 0) {
+                        const attDiv = document.createElement('div');
+                        attDiv.className = 'flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-black/10 dark:border-white/10';
+                        attachments.forEach(att => {
+                            const badge = document.createElement('span');
+                            badge.className = 'inline-flex items-center gap-1 bg-black/5 dark:bg-white/15 px-2 py-0.5 rounded text-[10px] font-mono text-gray-600 dark:text-gray-300';
+                            badge.textContent = (att.isImage ? '📷 ' : '📄 ') + att.name;
+                            attDiv.appendChild(badge);
+                        });
+                        contentDiv.appendChild(attDiv);
+                    }
                     containerBlock.appendChild(contentDiv);
                 } else {
                     const avatar = document.createElement('div');
@@ -669,9 +727,9 @@
                 return wrapper;
             }
 
-            function appendMessageToDOM(role, content, animate = false, predefinedId = null) {
+            function appendMessageToDOM(role, content, animate = false, predefinedId = null, attachments = null) {
                 const uniqueId = predefinedId || `msg-hash-${Date.now()}-${Math.floor(Math.random()*1000)}`;
-                const el = createMessageElement(role, content, uniqueId);
+                const el = createMessageElement(role, content, uniqueId, attachments);
                 els.messagesWrapper.appendChild(el);
                 
                 if (animate) {
@@ -690,6 +748,136 @@
                 els.chatContainer.scrollTop = els.chatContainer.scrollHeight;
             }
 
+            // --- FILE UPLOAD MANAGEMENT SYSTEM ---
+            function handleFileSelect(e) {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+
+                Array.from(files).forEach(file => {
+                    if (uploadedFiles.some(f => f.name === file.name && f.size === file.size)) return;
+                    const reader = new FileReader();
+                    
+                    if (file.type.startsWith('image/')) {
+                        reader.onload = (event) => {
+                            uploadedFiles.push({
+                                name: file.name,
+                                type: file.type,
+                                size: file.size,
+                                content: event.target.result,
+                                isImage: true
+                            });
+                            renderFilePreviews();
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        reader.onload = (event) => {
+                            uploadedFiles.push({
+                                name: file.name,
+                                type: file.type,
+                                size: file.size,
+                                content: event.target.result,
+                                isImage: false
+                            });
+                            renderFilePreviews();
+                        };
+                        reader.readAsText(file);
+                    }
+                });
+                els.fileInput.value = '';
+            }
+
+            function removeUploadedFile(index) {
+                uploadedFiles.splice(index, 1);
+                renderFilePreviews();
+            }
+
+            function renderFilePreviews() {
+                if (!els.filePreviewContainer) return;
+                els.filePreviewContainer.innerHTML = '';
+                
+                if (uploadedFiles.length === 0) {
+                    els.filePreviewContainer.classList.add('hidden');
+                    return;
+                }
+                
+                els.filePreviewContainer.classList.remove('hidden');
+                uploadedFiles.forEach((file, index) => {
+                    const pill = document.createElement('div');
+                    pill.className = 'flex items-center gap-1.5 bg-white dark:bg-[#282a2c] border border-gray-200 dark:border-gray-700 rounded-lg px-2.5 py-1 text-xs font-medium shadow-sm max-w-[200px] truncate';
+                    
+                    if (file.isImage) {
+                        pill.innerHTML = `
+                            <img src="${file.content}" class="w-4 h-4 object-cover rounded shadow-xs" />
+                            <span class="truncate flex-1 text-gray-700 dark:text-gray-300 font-mono text-[11px]">${file.name}</span>
+                        `;
+                    } else {
+                        pill.innerHTML = `
+                            <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span class="truncate flex-1 text-gray-700 dark:text-gray-300 font-mono text-[11px]">${file.name}</span>
+                        `;
+                    }
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.type = 'button';
+                    deleteBtn.className = 'text-gray-400 hover:text-red-500 ml-1 transition-colors';
+                    deleteBtn.innerHTML = `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                    deleteBtn.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeUploadedFile(index);
+                    };
+                    
+                    pill.appendChild(deleteBtn);
+                    els.filePreviewContainer.appendChild(pill);
+                });
+                adjustTextareaHeight();
+            }
+
+            // --- SYSTEM CONVERSATION EXPORT ---
+            function exportCurrentChat() {
+                const currentChat = state.chats.find(c => c.id.toString() === state.currentChatId.toString());
+                if (!currentChat || currentChat.messages.length === 0) {
+                    alert('No conversation context available to export.');
+                    return;
+                }
+
+                let markdownText = `# VexaNova AI - Workspace Transcript Export\n`;
+                markdownText += `**Workspace Identifier:** ${currentChat.title}\n`;
+                markdownText += `**Export Timestamp:** ${new Date().toLocaleString()}\n`;
+                markdownText += `\n---\n\n`;
+
+                currentChat.messages.forEach(msg => {
+                    const roleName = msg.role === 'user' ? '### 👤 User Workspace Node' : '### 🤖 VexaNova Engine';
+                    const textContent = msg.displayContent || msg.content;
+                    markdownText += `${roleName}\n\n${textContent}\n\n`;
+                    
+                    if (msg.attachments && msg.attachments.length > 0) {
+                        markdownText += `*Attached Pipeline Context Elements:* ${msg.attachments.map(a => a.name).join(', ')}\n\n`;
+                    }
+                    markdownText += `---\n\n`;
+                });
+
+                const blob = new Blob([markdownText], { type: 'text/markdown;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${currentChat.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.md`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            function handleModelSelectChange() {
+                if (!els.modelSelector) return;
+                const targetModel = els.modelSelector.value;
+                state.settings.model = targetModel;
+                saveState();
+                updateModelBadge();
+                if (els.settingModel) {
+                    els.settingModel.value = targetModel;
+                }
+            }
+
             // --- STREAMS & TRANSACTION EXECUTION ---
             async function handleSubmit(e) {
                 if (e) e.preventDefault();
@@ -697,7 +885,7 @@
                 
                 const rawPrompt = els.chatInput.value;
                 const prompt = rawPrompt.trim();
-                if (!prompt) return;
+                if (!prompt && uploadedFiles.length === 0) return;
 
                 if (!state.settings.apiKey) {
                     alert('Configuration API key context missing. Please initialize configuration layer variables.');
@@ -705,24 +893,48 @@
                     return;
                 }
 
-                const currentChat = state.chats.find(c => c.id === state.currentChatId);
+                const currentChat = state.chats.find(c => c.id.toString() === state.currentChatId.toString());
                 if (!currentChat) return;
 
                 if (currentChat.messages.length === 0) {
-                    currentChat.title = prompt.substring(0, 26) + (prompt.length > 26 ? '...' : '');
+                    currentChat.title = prompt ? (prompt.substring(0, 26) + (prompt.length > 26 ? '...' : '')) : uploadedFiles[0].name;
                     renderChatList();
                 }
 
-                currentChat.messages.push({ role: 'user', content: rawPrompt });
+                // Append contextual attachments if matching parameters are ready
+                let finalPromptToSend = rawPrompt;
+                if (uploadedFiles.length > 0) {
+                    let filesContext = "\n\n### Attached Files Context Stack:";
+                    uploadedFiles.forEach(file => {
+                        if (file.isImage) {
+                            filesContext += `\n- [Image Attachment Asset Reference: ${file.name}] (Data Matrix Asset)`;
+                        } else {
+                            const extension = file.name.split('.').pop() || 'txt';
+                            filesContext += `\n\nFile Name: ${file.name}\n\`\`\`${extension}\n${file.content}\n\`\`\``;
+                        }
+                    });
+                    finalPromptToSend += filesContext;
+                }
+
+                const attachmentsSnapshot = uploadedFiles.map(f => ({ name: f.name, isImage: f.isImage }));
+
+                currentChat.messages.push({ 
+                    role: 'user', 
+                    content: finalPromptToSend,
+                    displayContent: rawPrompt || `Processed context upload for ${attachmentsSnapshot.length} asset entries`,
+                    attachments: attachmentsSnapshot
+                });
                 saveState();
                 
                 els.chatInput.value = '';
+                uploadedFiles = [];
+                renderFilePreviews();
                 adjustTextareaHeight();
                 
                 els.welcomeScreen.classList.add('hidden');
                 els.messagesWrapper.classList.remove('hidden');
                 
-                appendMessageToDOM('user', rawPrompt, true);
+                appendMessageToDOM('user', rawPrompt || `Processed context asset array upload`, true, null, attachmentsSnapshot);
                 scrollToBottom();
 
                 // Multimodal prefix routing overrides
@@ -899,6 +1111,14 @@
                 els.closeSettingsBtn.addEventListener('click', closeSettings);
                 els.cancelSettingsBtn.addEventListener('click', closeSettings);
                 els.saveSettingsBtn.addEventListener('click', saveSettings);
+
+                // Wiring up core integration components
+                if (els.modelSelector) els.modelSelector.addEventListener('change', handleModelSelectChange);
+                if (els.exportChatBtn) els.exportChatBtn.addEventListener('click', exportCurrentChat);
+                if (els.fileUploadTrigger && els.fileInput) {
+                    els.fileUploadTrigger.addEventListener('click', () => els.fileInput.click());
+                    els.fileInput.addEventListener('change', handleFileSelect);
+                }
             }
 
             // Boot Engine Core Execution Frame
